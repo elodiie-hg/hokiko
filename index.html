@@ -8,13 +8,14 @@
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
-      background: linear-gradient(135deg, #fceabb, #f8b500);
+      background: #f3d792;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
+      position: relative;
     }
 
     .wheel-wrapper {
@@ -66,6 +67,39 @@
       cursor: not-allowed;
       box-shadow: none;
     }
+
+    /* Styles modale */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 30px;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      font-size: 18px;
+      color: #333;
+    }
+
+    .modal p {
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .modal button {
+      width: 100%;
+      font-weight: 600;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
@@ -79,10 +113,24 @@
     <button id="spinBtn">Lancer la roue</button>
   </div>
 
+  <!-- Modale pour instructions -->
+  <div id="modal" class="modal-overlay">
+    <div class="modal">
+      <p><strong>Suivez les étapes :</strong></p>
+      <p>1) Laissez un avis sur Google<br>2) Revenez sur cette page<br>3) Faites tourner la roue.</p>
+      <button id="googleReviewBtn">Notez sur Google</button>
+    </div>
+  </div>
+
   <script>
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
     const spinButton = document.getElementById("spinBtn");
+
+    const modal = document.getElementById("modal");
+    const googleReviewBtn = document.getElementById("googleReviewBtn");
+
+    const googleReviewURL = "https://www.google.com/search?sca_esv=1f1865b5582e1c86&sxsrf=AE3TifNfuBFBafy4G-lZBEFBJYT5V77S0Q:1750530041345&si=AMgyJEuzsz2NflaaWzrzdpjxXXRaJ2hfdMsbe_mSWso6src8swpHEgLW2mTt5c4C3Ig-MZcqeEzJSsgtMSnVdHq9cmEi7UIAlAzpH_PHc8cSxH4Zq44VKzemGVlVWW6mCSQaB7hi8Xjk&q=Hokiko+Avis&sa=X&ved=2ahUKEwi0yaHKkIOOAxW2VaQEHeEvIrUQ0bkNegQIKRAE&biw=1486&bih=778&dpr=1.5";
 
     const segments = ['-10%', '-5%', 'Goodies', 'Une boisson', 'Un café', 'Bon d\'achat 5€', 'À la prochaine'];
     const colors = ['#FFB300', '#FF8A65', '#9575CD', '#4DB6AC', '#81C784', '#BA68C8', '#F06292'];
@@ -141,8 +189,8 @@
       const hasSpun = sessionStorage.getItem("hasSpun");
 
       if (!hasReviewed) {
-        sessionStorage.setItem("hasReviewed", "true");
-        window.location.href = "https://www.google.com/search?sca_esv=1f1865b5582e1c86&sxsrf=AE3TifNfuBFBafy4G-lZBEFBJYT5V77S0Q:1750530041345&si=AMgyJEuzsz2NflaaWzrzdpjxXXRaJ2hfdMsbe_mSWso6src8swpHEgLW2mTt5c4C3Ig-MZcqeEzJSsgtMSnVdHq9cmEi7UIAlAzpH_PHc8cSxH4Zq44VKzemGVlVWW6mCSQaB7hi8Xjk&q=Hokiko+Avis&sa=X&ved=2ahUKEwi0yaHKkIOOAxW2VaQEHeEvIrUQ0bkNegQIKRAE&biw=1486&bih=778&dpr=1.5";
+        // Affiche la modale avec les instructions
+        modal.style.display = "flex";
         return;
       }
 
@@ -158,6 +206,15 @@
       canvas.style.transform = "rotate(0deg)";
       setTimeout(spinWheel, 50);
     }
+
+    // Bouton de la modale pour aller sur Google avis
+    googleReviewBtn.addEventListener("click", () => {
+      window.open(googleReviewURL, "_blank");
+      // On considère que l'utilisateur va laisser un avis,
+      // on met le flag hasReviewed pour éviter de réafficher la modale
+      sessionStorage.setItem("hasReviewed", "true");
+      modal.style.display = "none";
+    });
 
     // Désactive le bouton si déjà lancé dans la session
     window.onload = () => {
