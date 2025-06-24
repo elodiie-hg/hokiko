@@ -8,14 +8,13 @@
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
-      background: #b4bbe4;
+      background: #190458;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
-      position: relative;
     }
 
     .wheel-wrapper {
@@ -24,55 +23,74 @@
       height: 400px;
     }
 
-.arrow {
-  position: absolute;
-  top: 50%;
-  left: 100%;
-  transform: translateY(-50%) rotate(90deg); /* oriente la pointe vers la gauche */
-  width: 30px;
-  height: 50px;
-  background: white;
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  z-index: 10;
-}
-
-
-
+    .arrow {
+      width: 40px;
+      height: 60px;
+      clip-path: path("M 40 30 Q 20 0 0 30 Q 20 60 40 30 Z");
+      position: absolute;
+      top: calc(50% - 30px);
+      right: -50px;
+      z-index: 10;
+      background: white;
+      border: 2px solid black;
+    }
 
     canvas {
       border-radius: 50%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
     }
 
+    /* Image centrale avec double bordure */
+    .center-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      border-radius: 50%;
+      padding: 4px;
+      background: black;
+    }
+
+    .center-border {
+      border-radius: 50%;
+      padding: 6px;
+      background: white;
+    }
+
+    .center-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: block;
+      object-fit: cover;
+    }
+
     .btn-container {
       margin-top: 30px;
-      text-align: center;
     }
 
     button {
       padding: 12px 24px;
       font-size: 18px;
       border: none;
-      background-color: #ffffff;
-      color: rgb(0, 0, 0);
+      background-color: white;
+      color: black;
       border-radius: 10px;
       cursor: pointer;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      transition: background-color 0.3s;
     }
 
     button:hover:enabled {
-      background-color: #ffffff;
+      background-color: #eee;
     }
 
     button:disabled {
-      background-color: #ffffff;
+      background-color: #ccc;
       cursor: not-allowed;
       box-shadow: none;
     }
 
-    /* Styles modale */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -104,21 +122,6 @@
       font-weight: 600;
       font-size: 18px;
     }
-
-    .maki-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 80px;
-  height: 80px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  z-index: 5;
-}
-
   </style>
 </head>
 <body>
@@ -126,15 +129,19 @@
   <div class="wheel-wrapper">
     <div class="arrow"></div>
     <canvas id="wheelCanvas" width="400" height="400"></canvas>
-    <img src="maki.jpg" alt="Maki" class="maki-center">
-
+    
+    <!-- IMAGE AU CENTRE AVEC DOUBLE BORDURE -->
+    <div class="center-wrapper">
+      <div class="center-border">
+        <img src="maki.jpg" alt="Maki" class="center-image" />
+      </div>
+    </div>
   </div>
 
   <div class="btn-container">
     <button id="spinBtn">Lancer la roue</button>
   </div>
 
-  <!-- Modale pour instructions -->
   <div id="modal" class="modal-overlay">
     <div class="modal">
       <p><strong>Suivez les étapes :</strong></p>
@@ -147,64 +154,58 @@
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
     const spinButton = document.getElementById("spinBtn");
-
     const modal = document.getElementById("modal");
     const googleReviewBtn = document.getElementById("googleReviewBtn");
-
     const googleReviewURL = "https://g.page/r/CbX193o5Vy3SEBE/review";
 
     const segments = ['-10%', '-5%', 'Goodies', 'Une boisson', 'Un café', 'Bon d\'achat 5€', 'À la prochaine'];
-    const colors = ['#FFB300', '#FF8A65', '#9575CD', '#4DB6AC', '#81C784', '#BA68C8', '#F06292'];
+    const colors = ['#FFA500', '#6ec05d', '#eadf6b', '#FFA500', '#6ec05d', '#eadf6b', '#6ec05d'];
     const weights = [1, 3, 1, 4, 4, 1, 3];
-    const spinDuration = 5000; // durée du spin en ms
+    const spinDuration = 5000;
     let startAngle = 0;
 
     function drawWheel() {
-  const arc = (2 * Math.PI) / segments.length;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const arc = (2 * Math.PI) / segments.length;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  for (let i = 0; i < segments.length; i++) {
-    const angle = startAngle + i * arc;
+      for (let i = 0; i < segments.length; i++) {
+        const angle = startAngle + i * arc;
+        ctx.beginPath();
+        ctx.moveTo(200, 200);
+        ctx.arc(200, 200, 200, angle, angle + arc);
+        ctx.closePath();
 
-    // Générer un dégradé de bleu (bleu clair à bleu foncé)
-    const t = i / (segments.length - 1);
-    const r = Math.round(100 - t * 60);   // léger changement rouge
-    const g = Math.round(150 - t * 100);  // moins de vert vers le foncé
-    const b = Math.round(255 - t * 50);   // bleu reste dominant
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
 
-    // Dessiner la part
-    ctx.beginPath();
-    ctx.moveTo(200, 200);
-    ctx.arc(200, 200, 200, angle, angle + arc);
-    ctx.closePath();
-    ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "white";
+        ctx.stroke();
 
-    // Bordure blanche entre les cases
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.stroke();
+        ctx.save();
+        ctx.translate(200, 200);
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#fff";
+        ctx.font = "16px Quicksand";
+        ctx.fillText(segments[i], 180, 10);
+        ctx.restore();
+      }
 
-    // Texte
-    ctx.save();
-    ctx.translate(200, 200);
-    ctx.rotate(angle + arc / 2);
-    ctx.textAlign = "right";
-    ctx.fillStyle = "#fff";
-    ctx.font = "16px Quicksand";
-    ctx.fillText(segments[i], 180, 10);
-    ctx.restore();
-  }
+      // Bordure externe blanche
+      ctx.beginPath();
+      ctx.arc(200, 200, 200, 0, 2 * Math.PI);
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = "white";
+      ctx.stroke();
 
-  // Bordure extérieure blanche
-  ctx.beginPath();
-  ctx.arc(200, 200, 200, 0, 2 * Math.PI);
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = "#FFFFFF";
-  ctx.stroke();
-}
-
-
+      // Bordure noire autour
+      ctx.beginPath();
+      ctx.arc(200, 200, 204, 0, 2 * Math.PI);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "black";
+      ctx.stroke();
+    }
 
     function getRandomSegment() {
       const totalWeight = weights.reduce((a, b) => a + b);
@@ -223,9 +224,9 @@
       canvas.style.transition = `transform ${spinDuration / 1000}s ease-out`;
       canvas.style.transform = `rotate(${stopAngle}deg)`;
 
-setTimeout(() => {
-  alert("🎉 Résultat : " + segments[selectedIndex] + "\nPrésentez votre lot gagnant à notre équipe et recevez votre bon cadeau pour votre prochaine visite !");
-}, spinDuration);
+      setTimeout(() => {
+        alert("🎉 Résultat : " + segments[selectedIndex] + "\nPrésentez votre lot gagnant à notre équipe !");
+      }, spinDuration);
     }
 
     function handleSpinClick() {
@@ -233,7 +234,6 @@ setTimeout(() => {
       const hasSpun = sessionStorage.getItem("hasSpun");
 
       if (!hasReviewed) {
-        // Affiche la modale avec les instructions
         modal.style.display = "flex";
         return;
       }
@@ -251,16 +251,12 @@ setTimeout(() => {
       setTimeout(spinWheel, 50);
     }
 
-    // Bouton de la modale pour aller sur Google avis
     googleReviewBtn.addEventListener("click", () => {
       window.open(googleReviewURL, "_blank");
-      // On considère que l'utilisateur va laisser un avis,
-      // on met le flag hasReviewed pour éviter de réafficher la modale
       sessionStorage.setItem("hasReviewed", "true");
       modal.style.display = "none";
     });
 
-    // Désactive le bouton si déjà lancé dans la session
     window.onload = () => {
       if (sessionStorage.getItem("hasSpun")) {
         spinButton.disabled = true;
