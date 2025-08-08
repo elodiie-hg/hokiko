@@ -9,7 +9,8 @@
   <style>
     body {
       font-family: 'Gloria Hallelujah', cursive;
-      background: #2d0f87;
+      background: url('fond.png') no-repeat center center fixed;
+      background-size: cover;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -92,11 +93,11 @@
     }
 
     button:hover:enabled {
-      background-color: #eee;
+      background-color: #eeeeee;
     }
 
     button:disabled {
-      background-color: #ccc;
+      background-color: #ffffff;
       cursor: not-allowed;
       box-shadow: none;
     }
@@ -170,8 +171,18 @@
     const googleReviewBtn = document.getElementById("googleReviewBtn");
     const googleReviewURL = "https://g.page/r/CbX193o5Vy3SEBE/review";
 
-   const segments = ['-10%', '-5%', 'Goodies', 'Une boisson', 'Un café', 'Bon d\'achat\n5€', 'À la prochaine'];
- const colors = ['#FFA500', '#6ec05d', '#eadf6b', '#FFA500', '#6ec05d', '#eadf6b', '#6ec05d'];
+    // Ajout des emojis aux segments
+    const segments = [
+      '🎯 -10%',
+      '📉 -5%',
+      '🎁 Goodies',
+      '🥤 Une boisson',
+      '☕ Un café',
+      '💳 Bon\nd\'achat 5€',
+      '👋 À la\nprochaine'
+    ];
+
+    const colors = ['#b94798', '#58b350', '#4188b5', '#f9d363', '#6ec05d', '#eadf6b', '#6757e4'];
     const weights = [1, 3, 1, 4, 4, 1, 3];
     const spinDuration = 5000;
     let startAngle = 0;
@@ -204,10 +215,9 @@
         ctx.fillStyle = "black";
         ctx.font = "18px 'Gloria Hallelujah'";
         const lines = segments[i].split('\n');
-for (let j = 0; j < lines.length; j++) {
-  ctx.fillText(lines[j], 180, 10 + j * 18);
-}
-
+        for (let j = 0; j < lines.length; j++) {
+          ctx.fillText(lines[j], 180, 10 + j * 18);
+        }
         ctx.restore();
       }
 
@@ -242,7 +252,7 @@ for (let j = 0; j < lines.length; j++) {
       canvas.style.transform = `rotate(${stopAngle}deg)`;
 
       setTimeout(() => {
-        alert("🎉 Résultat : " + segments[selectedIndex] + "\nPrésentez votre lot gagnant à notre équipe !");
+        alert("🎉 Résultat : " + segments[selectedIndex].replace('\n', ' ') + "\nPrésentez votre lot gagnant à notre équipe !");
       }, spinDuration);
     }
 
@@ -282,7 +292,6 @@ for (let j = 0; j < lines.length; j++) {
 
     spinButton.addEventListener("click", handleSpinClick);
 
-    // Attendre que les polices soient prêtes
     document.fonts.ready.then(drawWheel);
   </script>
 </body>
